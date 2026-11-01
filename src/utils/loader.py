@@ -1,7 +1,5 @@
 
 import pandas as pd
-import psycopg
-from pathlib import Path
 from utils.database import get_connection
 
 
@@ -9,8 +7,16 @@ def load_csv_to_postgres(
     file_path,
     table_name,
     schema="raw",
+    load_method="INSERT",
 ):
 
+    # 0. verificar se o método de carga é válido
+    load_method = load_method.upper()
+    if load_method not in ["INSERT", "TRUNCATE"]:
+        raise ValueError(
+            f"load_method inválido: {load_method}. "
+            f"Escolha entre 'INSERT' ou 'TRUNCATE'."
+        )
     # 1. Ler o CSV
     df = pd.read_csv(file_path)
 
@@ -55,6 +61,25 @@ def load_csv_to_postgres(
                 f'CREATE SCHEMA IF NOT EXISTS "{schema}"'
             )
 
+            # Se o método "TRUNCATE" for selecionado, verificar se a tabela existe e truncá-la
+            if load_method == "TRUNCATE":
+                cur.execute(
+                    f'''
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM information_schema.tables
+                        WHERE table_schema = '{schema}'
+                        AND table_name = '{table_name}'
+                    )
+                    '''
+                )
+                table_exists = cur.fetchone()[0]
+
+                if table_exists:
+                    cur.execute(
+                        f'TRUNCATE TABLE "{schema}"."{table_name}"'
+                    )
+
             # 5. Criar tabela
             cur.execute(
                 f'''
@@ -83,5 +108,6 @@ def load_csv_to_postgres(
 
     print(
         f"Carga concluída: {len(df)} registros "
-        f"em {schema}.{table_name}"
+        f"em {schema}.{table_name} "
+        f"(método:{load_method});"
     )
