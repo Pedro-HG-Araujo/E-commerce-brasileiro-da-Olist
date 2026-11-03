@@ -1,7 +1,9 @@
 with vendas as (
 select 
      concat(o.order_id,'|',i.product_id) as OrigemId
+    ,o.order_id as PedidoOrigemId
     ,o.Order_status as Status
+    ,o.order_purchase_timestamp as DataPedido
     ,c.categoria_produto_id
     ,i.price as Preco
     ,i.freight_value as Frete
