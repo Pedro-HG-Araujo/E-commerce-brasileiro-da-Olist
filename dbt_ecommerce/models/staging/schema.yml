@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: olist
-    schema: stage
+    schema: raw
     description: "Raw data from the Olist e-commerce platform"
     tables:
       - name: olist_order_reviews
