@@ -33,6 +33,11 @@ models:
   dbt_ecommerce:
     # Config indicated by + and applies to all files under models/example/
     staging:
+      +schema: stage
       +materialized: view
-    marts:
+    intermediate:
+      +schema: public
       +materialized: table
+    marts:
+      +schema: bi
+      +materialized: view
