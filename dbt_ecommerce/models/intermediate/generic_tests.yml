@@ -1,0 +1,24 @@
+models:
+  - name: int_vendas
+    columns:
+      - name: Id
+        tests:
+          - not_null
+          - unique
+      - name: OrigemId
+        tests:
+          - not_null
+          - unique
+      - name: categoria_produto_id
+        tests:
+          - not_null
+          - relationships:
+             arguments:
+              to: ref('d_categoria_produto')
+              field: Id
+      - name: DataPedido
+        tests:
+          - not_null
+      - name: Preco
+        tests:
+          - not_null
